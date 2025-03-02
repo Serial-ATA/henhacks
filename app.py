@@ -34,6 +34,7 @@ def add_user():
         cur.execute(f"INSERT INTO users (name, email) VALUES ('{data['name']}', '{data['email']}');")
         conn.commit()
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
     finally:
         cur.close()
@@ -47,6 +48,7 @@ def random_song():
         cur.execute(f"SELECT id FROM songs ORDER BY RANDOM() LIMIT 1;")
         song_id = cur.fetchone()
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
     finally:
         cur.close()
@@ -69,6 +71,7 @@ def add_review(user_id):
             f"INSERT INTO reviews (user_id, song, content, rating) VALUES ('{user_id}', '{data['song_id']}', {text}, {data['rating']});")
         conn.commit()
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
     finally:
         cur.close()
@@ -169,6 +172,7 @@ def add_friend():
         cur.execute(f"INSERT INTO friends (user_id, friend_id) VALUES ('{data['user_id']}', '{data['friend_id']}');")
         conn.commit()
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
     finally:
         cur.close()
@@ -210,6 +214,7 @@ def user_by_id(user_id):
         if user is None:
             return {}, 404
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
 
     return jsonify(user), 201
@@ -221,6 +226,7 @@ def user_by_name(name):
         if user is None:
             return {}, 404
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
 
     return jsonify(user), 201
@@ -230,6 +236,7 @@ def profile(name):
     try:
         user = get_user_by_name(name)
     except:
+        conn.rollback()
         return jsonify({"error": "database error"}), 500
 
     if user is None:
