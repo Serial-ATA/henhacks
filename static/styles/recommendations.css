@@ -1,0 +1,65 @@
+@import "base.css";
+
+header {
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+header nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header nav h1 {
+  font-size: 1.8rem;
+  color: #333;
+}
+
+header nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+
+header nav ul li a,
+header nav ul li button {
+  font-size: 1rem;
+  color: #333;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.recommendation-item {
+  background: #fff;
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.friend-recommended {
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 10px #ffd700;
+}
+
+.friend-label {
+  font-weight: bold;
+  color: #d2691e;
+  margin-top: 0.5rem;
+}

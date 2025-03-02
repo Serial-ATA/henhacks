@@ -1,12 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>For the Record - {{ song.title }}</title>
     <link rel="stylesheet" href="../static/styles/song.css" />
+    <script defer>
+      const songId = {{ song.id }}
+    </script>
+    <script src="../static/script/song.js" defer></script>
   </head>
   <body>
-    <!-- Header -->
     <header>
       <div class="container">
         <nav>
@@ -21,16 +24,12 @@
       </div>
     </header>
 
-    <!-- Main Container -->
     <div class="container">
-      <!-- Song Info -->
       <section class="song-info">
-        <!-- Album Art -->
         <div class="song-art">
           <img src="{{ song.image_url }}" alt="{{ song.title }} Album Art" />
         </div>
 
-        <!-- Song Details Card -->
         <div class="song-details">
           <h2>{{ song.name }} by {{ song.artist }}</h2>
           <p>Album: <strong>{{ song.album }}</strong></p>
@@ -45,7 +44,6 @@
         </div>
       </section>
 
-      <!-- Reviews Section -->
       <section class="reviews-section">
         <h2>Reviews</h2>
         {% if reviews %}
@@ -70,7 +68,6 @@
         {% endif %}
       </section>
 
-      <!-- Add a Review Section -->
       <section class="add-review">
         <h2>Add a Review</h2>
         <form id="add-review-form">
@@ -99,46 +96,5 @@
         </form>
       </section>
     </div>
-
-    <!-- Inline JS to handle form submission -->
-    <script>
-      const form = document.getElementById('add-review-form');
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const userId = document.getElementById('review-user-id').value.trim();
-        const rating = document.getElementById('review-rating').value.trim();
-        const text = document.getElementById('review-text').value.trim();
-
-        // Build the data object
-        const reviewData = {
-          song_id: {{ song.id }},
-          rating: parseInt(rating, 10),
-        };
-
-        if (text) {
-          reviewData.text = text;
-        }
-
-        try {
-          // Make a POST request to the user-specific endpoint
-          const response = await fetch(`/api/user/${userId}/add_review`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reviewData),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-          }
-
-          alert('Review submitted successfully!');
-          window.location.reload();
-        } catch (error) {
-          console.error(error);
-          alert('Error submitting review. Please try again.');
-        }
-      });
-    </script>
   </body>
 </html>

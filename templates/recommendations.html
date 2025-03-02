@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Recommendations for {{ user.name }}</title>
+    <link rel="stylesheet" href="../static/styles/recommendations.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav>
+          <h1><a href="/">For the Record</a></h1>
+          <ul>
+            <li><a href="#">Music</a></li>
+            <li><a href="#">MyRecords</a></li>
+            <li><a href="#">MyProfile</a></li>
+            <li><button>Login</button></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div class="container">
+      <h2>Song Recommendations for {{ user.name }}</h2>
+      <div class="recommendations-list">
+        {% for rec in recommendations %}
+        <div
+          class="recommendation-item {% if rec.recommended_by_friend %}friend-recommended{% endif %}"
+        >
+          <h3>{{ rec.rank }}: {{ rec.title }}</h3>
+          <p><strong>Artist:</strong> {{ rec.artist }}</p>
+          <p><strong>Average Rating:</strong> {{ rec.average_rating }}</p>
+          {% if rec.recommended_by_friend %}
+          <p class="friend-label">Recommended by a friend</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
