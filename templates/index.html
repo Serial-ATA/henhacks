@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>For the Record</title>
-    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="../static/styles/index.css" />
+    <script src="../static/script/index.js" defer></script>
   </head>
   <body>
-    <!-- Hero Section -->
     <section class="hero">
       <h1>Welcome to For the Record!</h1>
       <p>
@@ -18,11 +18,9 @@
     </section>
 
     <div class="container">
-      <!-- Meet the Devs Section -->
       <section class="dev-section">
         <h2>Meet the Devs!</h2>
         <div class="dev-cards">
-          <!-- Dev Card 1 -->
           <div class="dev-card">
             <img
               src="https://via.placeholder.com/200x150?text=Dev+Photo"
@@ -34,7 +32,6 @@
               to share.
             </p>
           </div>
-          <!-- Dev Card 2 -->
           <div class="dev-card">
             <img
               src="https://via.placeholder.com/200x150?text=Dev+Photo"
@@ -46,7 +43,6 @@
               to share.
             </p>
           </div>
-          <!-- Dev Card 3 -->
           <div class="dev-card">
             <img
               src="https://via.placeholder.com/200x150?text=Dev+Photo"
@@ -58,7 +54,6 @@
               to share.
             </p>
           </div>
-          <!-- Dev Card 4 -->
           <div class="dev-card">
             <img
               src="https://via.placeholder.com/200x150?text=Dev+Photo"
@@ -73,7 +68,6 @@
         </div>
       </section>
 
-      <!-- How do I make MyRecord? Section -->
       <section class="myrecord-section">
         <h2>How do I make MyRecord?</h2>
         <p>
@@ -82,12 +76,12 @@
           track you want, or share your own music to get feedback from others!
         </p>
         <div class="myrecord-buttons">
-          <button>Rate a mystery demo song</button>
+          <!-- Add an id to the mystery song button -->
+          <button id="mystery-song-button">Rate a mystery demo song</button>
           <button>Try your own song</button>
         </div>
       </section>
 
-      <!-- Peer Reviews Section -->
       <section class="peer-reviews">
         <h2>Peer Reviews</h2>
         <div class="reviews-list">
@@ -103,7 +97,6 @@
         </div>
       </section>
 
-      <!-- Signup Form -->
       <section id="signup" class="signup-section">
         <h2>Create Your Account</h2>
         <form id="signup-form">
@@ -119,48 +112,5 @@
         </form>
       </section>
     </div>
-
-    <!-- Footer -->
-    <footer>
-      <div class="container">
-        <div class="footer-links">
-          <p>Site name</p>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
-        </div>
-      </div>
-    </footer>
-
-    <!-- JavaScript to handle signup form submission -->
-    <script>
-      const form = document.getElementById("signup-form");
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-
-        try {
-          const response = await fetch("http://127.0.0.1:5000/api/user/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Server responded with " + response.status);
-          }
-
-          const data = await response.json();
-          alert(
-            `User created successfully!\nName: ${data.name}\nEmail: ${data.email}\nID: ${data.id || "No ID returned"}`,
-          );
-        } catch (error) {
-          console.error(error);
-          alert("Error creating user. Please try again.");
-        }
-      });
-    </script>
   </body>
 </html>

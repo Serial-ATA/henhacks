@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>For the Record - {{ user.name }}'s Profile</title>
+    <link rel="stylesheet" href="../static/styles/profile.css" />
+    <script src="../static/script/profile.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav>
+          <h1><a href="/">For the Record</a></h1>
+          <ul>
+            <li><a href="#">Music</a></li>
+            <li><a href="#">MyRecords</a></li>
+            <li><a href="#">MyProfile</a></li>
+            <li><button>Login</button></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div class="container">
+      <section class="profile-card">
+        <img
+          src="https://via.placeholder.com/200?text=User+Avatar"
+          alt="User Avatar"
+        />
+        <div class="profile-info">
+          <h2>{{ user.name }}</h2>
+          <div class="stats">
+            <div class="stat">
+              <strong>{{ songs_reviewed_count }}</strong> Songs Reviewed
+            </div>
+          </div>
+          <p>{{ user.bio }}</p>
+        </div>
+      </section>
+
+      <section>
+        <h3>{{ user.name }}'s Friends</h3>
+        {% if friends %}
+        <div class="friends-grid">
+          {% for friend in friends %}
+          <div class="friend">
+            <img src="{{ friend.profile_image_url }}" alt="{{ friend.name }}" />
+            <p>{{ friend.name }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>No friends yet.</p>
+        {% endif %}
+      </section>
+
+      <section>
+        <h3>Recently Reviewed</h3>
+        {% if reviews %}
+        <div class="reviews-grid">
+          {% for review in reviews %}
+          <div class="review-card">
+            <img
+              src="https://via.placeholder.com/150?text=Album"
+              alt="{{ review.album_name }}"
+            />
+            <p><strong>{{ review.album_name }}</strong></p>
+            <p>{{ review.artist }}</p>
+            <p>Rating: {{ review.rating }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>No reviews yet.</p>
+        {% endif %}
+      </section>
+
+      <section>
+        <h3>Highest Rated</h3>
+        <div class="highest-rated">
+          <div class="highest-item">
+            <img
+              src="https://via.placeholder.com/80?text=Song"
+              alt="Highest Rated Song"
+            />
+            <div>
+              <p><strong>{{ highest_rated_song.name }}</strong></p>
+              <p>by {{ highest_rated_song.artist }}</p>
+              <p>Rating: {{ highest_rated_song.rating }}</p>
+            </div>
+          </div>
+          <div class="highest-item">
+            <img
+              src="https://via.placeholder.com/80?text=Album"
+              alt="Highest Rated Album"
+            />
+            <div>
+              <p><strong>{{ highest_rated_album.name }}</strong></p>
+              <p>by {{ highest_rated_album.artist }}</p>
+              <p>Rating: {{ highest_rated_album.rating }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

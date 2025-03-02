@@ -1,8 +1,9 @@
 import os
+from statistics import mean
 
 import psycopg2
 import requests
-from flask import Flask, redirect, url_for, jsonify, request
+from flask import Flask, redirect, url_for, jsonify, request, render_template, abort
 from dotenv import load_dotenv
 
 app = Flask(__name__)
@@ -33,8 +34,20 @@ def add_user():
     finally:
         cur.close()
 
-    return {}, 201
+    return jsonify(get_user_by_name(data["name"])), 201
 
+@app.route('/api/song/random', methods=['GET'])
+def random_song():
+    cur = conn.cursor()
+    try:
+        cur.execute(f"SELECT id FROM songs ORDER BY RANDOM() LIMIT 1;")
+        song_id = cur.fetchone()
+    except:
+        return jsonify({"error": "database error"}), 500
+    finally:
+        cur.close()
+
+    return str(song_id[0]), 200
 
 @app.route('/api/user/<user_id>/add_review', methods=['POST'])
 def add_review(user_id):
@@ -58,13 +71,16 @@ def add_review(user_id):
 
     return {}, 201
 
-
-@app.route('/api/user/reviews/<user_id>', methods=['GET'])
-def reviews_for_user(user_id):
+def get_reviews_for_user(user_id):
     cur = conn.cursor()
     cur.execute(f"SELECT * FROM reviews WHERE id = {user_id};")
     reviews = cur.fetchall()
     cur.close()
+    return reviews
+
+@app.route('/api/user/reviews/<user_id>', methods=['GET'])
+def reviews_for_user(user_id):
+    reviews = get_reviews_for_user(user_id)
     return jsonify(reviews)
 
 
@@ -85,39 +101,189 @@ def add_friend():
 
     return {}, 201
 
+def get_user_by_name(name):
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM users WHERE name = '{name}';")
+    user = cur.fetchone()
+    if user is None:
+        return None
+    conn.commit()
+    return {
+        "id": user[0],
+        "name": user[1],
+        "email": user[2],
+        "bio": user[3]
+    }
 
-@app.route('/api/user/friends/<user_id>', methods=['GET'])
-def get_friends(user_id):
+def get_user_by_id(user_id):
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM users WHERE id = {user_id};")
+    user = cur.fetchone()
+    if user is None:
+        return None
+    conn.commit()
+    return {
+        "id": user[0],
+        "name": user[1],
+        "email": user[2],
+        "bio": user[3]
+    }
+
+@app.route('/api/user/<user_id>', methods=['GET'])
+def user_by_id(user_id):
+    try:
+        user = get_user_by_id(user_id)
+        if user is None:
+            return {}, 404
+    except:
+        return jsonify({"error": "database error"}), 500
+
+    return jsonify(user), 201
+
+@app.route('/api/user/by_name/<name>', methods=['GET'])
+def user_by_name(name):
+    try:
+        user = get_user_by_name(name)
+        if user is None:
+            return {}, 404
+    except:
+        return jsonify({"error": "database error"}), 500
+
+    return jsonify(user), 201
+
+@app.route('/profile/<name>')
+def profile(name):
+    try:
+        user = get_user_by_name(name)
+    except:
+        return jsonify({"error": "database error"}), 500
+
+    if user is None:
+        abort(404)
+
+    friends = friends_of_user(user["id"])
+    reviews = get_reviews_for_user(user["id"])
+
+    highest_rated_song = 0
+    highest_rated_album = 1
+
+    if user["bio"] is None:
+        user["bio"] = "No bio yet..."
+
+    return render_template(
+        'profile.html',
+        user=user,
+        friends=friends,
+        reviews=reviews,
+        songs_reviewed_count=len(reviews),
+        highest_rated_song=highest_rated_song,
+        highest_rated_album=highest_rated_album
+    )
+
+def friends_of_user(user_id):
     cur = conn.cursor()
     cur.execute(f"""
-    SELECT
-        *
-    FROM
-        friends
-    WHERE
-        user_id = {user_id}
-    UNION
-    SELECT
-        *
-    FROM
-        friends
-    WHERE
-        friend_id = {user_id};
-""")
+        SELECT
+            *
+        FROM
+            friends
+        WHERE
+            user_id = {user_id}
+        UNION
+        SELECT
+            *
+        FROM
+            friends
+        WHERE
+            friend_id = {user_id};
+    """)
     raw_friends = cur.fetchall()
-    cur.close()
 
     friends = []
     user_id = int(user_id)
 
     for user, friend in raw_friends:
         if user == user_id:
-            friends.append(friend)
+            friends.append(get_user_by_id(friend))
             continue
-        friends.append(user)
+        friends.append(get_user_by_id(user))
 
+    return friends
+
+@app.route('/api/user/friends/<user_id>', methods=['GET'])
+def get_friends(user_id):
+    friends = friends_of_user(user_id)
     return jsonify(friends)
 
+def get_album_by_id(album_id):
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM albums WHERE id = {album_id};")
+    album = cur.fetchone()
+    if album is None:
+        return None
+    conn.commit()
+    return {
+        "id": album[0],
+        "name": album[1],
+        "artist": album[2]
+    }
+
+def get_song_by_id(song_id):
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM songs WHERE id = {song_id};")
+    song = cur.fetchone()
+    if song is None:
+        return None
+    conn.commit()
+    return {
+        "id": song[0],
+        "name": song[1],
+        "artist": song[2],
+        "album": song[3]
+    }
+
+def get_reviews_for_song(song_id):
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM reviews WHERE song = {song_id};")
+    reviews = cur.fetchall()
+    cur.close()
+    return [{
+        "id": review[0],
+        "user_id": review[1],
+        "song": review[2],
+        "content": review[3],
+        "rating": review[4],
+        "timestamp": review[5]
+    } for review in reviews]
+
+@app.route('/song/<int:song_id>')
+def show_song(song_id):
+    song = get_song_by_id(song_id)
+    if not song:
+        abort(404, "Song not found")
+
+    song_reviews = get_reviews_for_song(song_id)
+    for review in song_reviews:
+        review["username"] = get_user_by_id(review["user_id"])["name"]
+
+    if song_reviews:
+        avg_rating = mean([r["rating"] for r in song_reviews])
+    else:
+        avg_rating = None
+
+    album = get_album_by_id(song["album"])
+    song["album"] = album["name"]
+
+    return render_template(
+        'song.html',
+        song=song,
+        reviews=song_reviews,
+        avg_rating=avg_rating
+    )
+
+@app.route('/', methods=['GET'])
+def root():
+    return render_template('index.html')
 
 API_ROOT = "https://api.listenbrainz.org"
 load_dotenv()

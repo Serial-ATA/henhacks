@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>For the Record - {{ song.title }}</title>
+    <link rel="stylesheet" href="../static/styles/song.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <nav>
+          <h1><a href="/">For the Record</a></h1>
+          <ul>
+            <li><a href="#">Music</a></li>
+            <li><a href="#">MyRecords</a></li>
+            <li><a href="#">MyProfile</a></li>
+            <li><button>Login</button></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Song Info -->
+      <section class="song-info">
+        <!-- Album Art -->
+        <div class="song-art">
+          <img src="{{ song.image_url }}" alt="{{ song.title }} Album Art" />
+        </div>
+
+        <!-- Song Details Card -->
+        <div class="song-details">
+          <h2>{{ song.name }} by {{ song.artist }}</h2>
+          <p>Album: <strong>{{ song.album }}</strong></p>
+
+          {% if avg_rating %}
+          <p class="album-rating">
+            Average Rating: {{ avg_rating|round(1) }} / 5
+          </p>
+          {% else %}
+          <p class="album-rating">No ratings yet</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- Reviews Section -->
+      <section class="reviews-section">
+        <h2>Reviews</h2>
+        {% if reviews %}
+        <div class="review-list">
+          {% for r in reviews %}
+          <div class="review-card">
+            <div class="review-header">
+              <span class="username">
+                <a href="/profile/{{ r.username }}">{{ r.username }}</a>
+              </span>
+              <span class="date">{{ r.timestamp }}</span>
+              <span class="rating">Rating: {{ r.rating }}</span>
+            </div>
+            <div class="review-body">
+              <p>{{ r.content }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>No reviews yet. Be the first to review this song!</p>
+        {% endif %}
+      </section>
+
+      <!-- Add a Review Section -->
+      <section class="add-review">
+        <h2>Add a Review</h2>
+        <form id="add-review-form">
+          <label for="review-user-id">User ID:</label>
+          <input
+            type="text"
+            id="review-user-id"
+            name="review-user-id"
+            required
+          />
+
+          <label for="review-rating">Rating (1-5):</label>
+          <input
+            type="number"
+            id="review-rating"
+            name="review-rating"
+            min="1"
+            max="5"
+            required
+          />
+
+          <label for="review-text">Review (optional):</label>
+          <textarea id="review-text" name="review-text" rows="4"></textarea>
+
+          <button type="submit">Submit Review</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Inline JS to handle form submission -->
+    <script>
+      const form = document.getElementById('add-review-form');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const userId = document.getElementById('review-user-id').value.trim();
+        const rating = document.getElementById('review-rating').value.trim();
+        const text = document.getElementById('review-text').value.trim();
+
+        // Build the data object
+        const reviewData = {
+          song_id: {{ song.id }},
+          rating: parseInt(rating, 10),
+        };
+
+        if (text) {
+          reviewData.text = text;
+        }
+
+        try {
+          // Make a POST request to the user-specific endpoint
+          const response = await fetch(`/api/user/${userId}/add_review`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reviewData),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+          }
+
+          alert('Review submitted successfully!');
+          window.location.reload();
+        } catch (error) {
+          console.error(error);
+          alert('Error submitting review. Please try again.');
+        }
+      });
+    </script>
+  </body>
+</html>
