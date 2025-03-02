@@ -3,7 +3,7 @@
 .hero {
   background: url("https://via.placeholder.com/1200x400?text=Hero+Image")
     no-repeat center/cover;
-  color: #fff;
+  color: #000000;
   padding: 4rem 0;
   text-align: center;
   margin-bottom: 2rem;
@@ -20,7 +20,7 @@
   background-color: #ff7700;
   border: none;
   padding: 0.75rem 1.5rem;
-  color: #fff;
+  color: #ffffff;
   font-size: 1rem;
   cursor: pointer;
   border-radius: 4px;
