@@ -8,10 +8,12 @@ from flask import Flask, redirect, url_for, jsonify, request, render_template, a
 from dotenv import load_dotenv
 from google import genai
 
+load_dotenv()
+
 app = Flask(__name__)
 
-conn = psycopg2.connect(database="ftr_db", user="postgres",
-                        password="root", host="localhost", port="5432")
+conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"), user=os.getenv("POSTGRES_USER"),
+                        password=os.getenv("POSTGRES_PASSWORD"), host=os.getenv("POSTGRES_HOST"), port=os.getenv("POSTGRES_PORT"))
 
 @app.after_request
 def handle_options(response):
@@ -358,7 +360,6 @@ def root():
     return render_template('index.html')
 
 API_ROOT = "https://api.listenbrainz.org"
-load_dotenv()
 
 AUTH_HEADER = {
     "Authorization": f"Token {os.getenv("LB_API_KEY")}"
