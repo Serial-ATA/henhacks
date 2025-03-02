@@ -152,6 +152,9 @@ def initialize_song_db(cursor):
             if album not in recordings_sorted:
                 recordings_sorted[album] = []
 
+            if recording_name in recordings_sorted[album]:
+                continue
+
             recordings_sorted[album].append(recording_name)
 
         for album, songs in recordings_sorted.items():
@@ -163,8 +166,6 @@ def initialize_song_db(cursor):
 
 with app.app_context():
     cur = conn.cursor()
-
-    print("arg")
     with open("./schema.sql") as f:
         cur.execute(f.read())
     initialize_song_db(cur)
